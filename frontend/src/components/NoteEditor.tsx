@@ -174,7 +174,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ note, onSave, onClose }) => {
       }
       
       // Debounce the update
-      typingTimeoutRef.current = setTimeout(() => {
+      typingTimeoutRef.current = window.setTimeout(() => {
         collaborationService.updateNote(noteId, { title: newTitle });
         console.log('📤 Sending title update:', newTitle);
       }, 300);
@@ -197,7 +197,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ note, onSave, onClose }) => {
       }
       
       // Debounce the update
-      typingTimeoutRef.current = setTimeout(() => {
+      typingTimeoutRef.current = window.setTimeout(() => {
         collaborationService.updateNote(noteId, { content: newContent });
         console.log('📤 Sending content update:', newContent.substring(0, 50) + '...');
       }, 300);
@@ -218,7 +218,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ note, onSave, onClose }) => {
       }
       
       // Set timeout to stop typing indicator
-      typingTimeoutRef.current = setTimeout(() => {
+      typingTimeoutRef.current = window.setTimeout(() => {
         collaborationService.stopTyping(noteId);
       }, 2000);
     }
@@ -425,5 +425,3 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ note, onSave, onClose }) => {
 };
 
 export default NoteEditor;
-
-// code by abhigyann
