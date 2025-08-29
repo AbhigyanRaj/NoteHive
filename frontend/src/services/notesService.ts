@@ -1,6 +1,8 @@
 import type { Note } from '../types';
 
-const API_BASE_URL = 'http://localhost:5001/api';
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? 'https://notehive-9176.onrender.com/api' 
+  : 'http://localhost:5001/api';
 
 // Local storage keys
 const NOTES_STORAGE_KEY = 'notehive_notes';

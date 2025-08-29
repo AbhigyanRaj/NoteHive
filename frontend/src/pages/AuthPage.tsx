@@ -42,7 +42,10 @@ const AuthPage: React.FC = () => {
 
   const handleGoogleAuth = () => {
     // Redirect to Google OAuth endpoint
-    window.location.href = 'http://localhost:5001/api/auth/google';
+    const backendUrl = process.env.NODE_ENV === 'production' 
+      ? 'https://notehive-9176.onrender.com' 
+      : 'http://localhost:5001';
+    window.location.href = `${backendUrl}/api/auth/google`;
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
