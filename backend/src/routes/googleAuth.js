@@ -16,10 +16,10 @@ const generateToken = (userId) => {
 // @access  Public
 router.get('/google', (req, res, next) => {
   if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
-    return res.status(503).json({ 
-      success: false, 
-      message: 'Google OAuth is not configured on this server' 
-    });
+    const frontendUrl = process.env.NODE_ENV === 'production' 
+      ? 'https://note-hive-fawn.vercel.app' 
+      : 'http://localhost:5173';
+    return res.redirect(`${frontendUrl}/auth?error=oauth_not_configured`);
   }
   passport.authenticate('google', {
     scope: ['profile', 'email']
