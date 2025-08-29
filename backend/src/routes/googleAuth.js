@@ -14,16 +14,41 @@ const generateToken = (userId) => {
 // @route   GET /api/auth/google
 // @desc    Initiate Google OAuth
 // @access  Public
-router.get('/google', passport.authenticate('google', {
-  scope: ['profile', 'email']
-}));
+router.get('/google', (req, res, next) => {
+  if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+    return res.status(503).json({ 
+      success: false, 
+      message: 'Google OAuth is not configured on this server' 
+    });
+  }
+  passport.authenticate('google', {
+    scope: ['profile', 'email']
+  })(req, res, next);
+});
 
 // @route   GET /api/auth/google/callback
 // @desc    Google OAuth callback
 // @access  Public
-router.get('/google/callback', 
-  passport.authenticate('google', { session: false }),
-  (req, res) => {
+router.get('/google/callback', (req, res, next) => {
+  if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+    const frontendUrl = process.env.NODE_ENV === 'production' 
+      ? 'https://note-hive-fawn.vercel.app' 
+      : 'http://localhost:5173';
+    return res.redirect(`${frontendUrl}/auth/error?message=Google OAuth not configured`);
+  }
+  
+  passport.authenticate('google', { session: false }, (err, user) => {
+    if (err || !user) {
+      const frontendUrl = process.env.NODE_ENV === 'production' 
+        ? 'https://note-hive-fawn.vercel.app' 
+        : 'http://localhost:5173';
+      return res.redirect(`${frontendUrl}/auth/error`);
+    }
+    
+    req.user = user;
+    next();
+  })(req, res, next);
+}, (req, res) => {
     try {
       // Generate JWT token for the authenticated user
       const token = generateToken(req.user._id);

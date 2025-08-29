@@ -5,11 +5,17 @@ const User = require('../models/User');
 // Load environment variables
 require('dotenv').config();
 
-passport.use(new GoogleStrategy({
-  clientID: process.env.GOOGLE_CLIENT_ID,
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: `http://localhost:${process.env.PORT || 5001}/api/auth/google/callback`
-}, async (accessToken, refreshToken, profile, done) => {
+// Only configure Google Strategy if environment variables are present
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  const callbackURL = process.env.NODE_ENV === 'production'
+    ? 'https://notehive-9176.onrender.com/api/auth/google/callback'
+    : `http://localhost:${process.env.PORT || 5001}/api/auth/google/callback`;
+
+  passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: callbackURL
+  }, async (accessToken, refreshToken, profile, done) => {
   try {
     // Check if user already exists with this Google ID
     let user = await User.findOne({ googleId: profile.id });
@@ -44,7 +50,10 @@ passport.use(new GoogleStrategy({
     console.error('Google OAuth error:', error);
     done(error, null);
   }
-}));
+  }));
+} else {
+  console.warn('Google OAuth not configured - GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables are missing');
+}
 
 passport.serializeUser((user, done) => {
   done(null, user._id);
