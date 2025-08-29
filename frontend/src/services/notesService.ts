@@ -1,6 +1,7 @@
 import type { Note } from '../types';
 
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
+const isProduction = typeof window !== 'undefined' && window.location.hostname !== 'localhost';
+const API_BASE_URL = isProduction
   ? 'https://notehive-9176.onrender.com/api' 
   : 'http://localhost:5001/api';
 

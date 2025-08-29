@@ -105,7 +105,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setLoading(true);
     try {
       console.log('Attempting signup with:', { name, email });
-      const backendUrl = process.env.NODE_ENV === 'production' 
+      const isProduction = window.location.hostname !== 'localhost';
+      const backendUrl = isProduction
         ? 'https://notehive-9176.onrender.com' 
         : 'http://localhost:5001';
       const response = await fetch(`${backendUrl}/api/auth/signup`, {
@@ -147,7 +148,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const loginUser = async (email: string, password: string): Promise<boolean> => {
     setLoading(true);
     try {
-      const backendUrl = process.env.NODE_ENV === 'production' 
+      const isProduction = window.location.hostname !== 'localhost';
+      const backendUrl = isProduction
         ? 'https://notehive-9176.onrender.com' 
         : 'http://localhost:5001';
       const response = await fetch(`${backendUrl}/api/auth/login`, {

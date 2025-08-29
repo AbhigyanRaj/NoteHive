@@ -71,7 +71,8 @@ class CollaborationService {
       try {
         console.log('🔌 Attempting to connect to collaboration server with token:', token ? 'present' : 'missing');
         
-        this.socket = io(process.env.NODE_ENV === 'production' 
+        const isProduction = typeof window !== 'undefined' && window.location.hostname !== 'localhost';
+        this.socket = io(isProduction
           ? 'https://notehive-9176.onrender.com' 
           : 'http://localhost:5001', {
           auth: { token },
