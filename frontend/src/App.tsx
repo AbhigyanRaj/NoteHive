@@ -7,6 +7,8 @@ import Dashboard from './pages/Dashboard';
 import Settings from './pages/Settings';
 import AuthSuccess from './pages/AuthSuccess';
 import AuthError from './pages/AuthError';
+import AdminLogin from './pages/AdminLogin';
+import AdminDashboard from './pages/AdminDashboard';
 
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -19,6 +21,11 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
   console.log('PublicRoute - isAuthenticated:', isAuthenticated);
   return !isAuthenticated ? <>{children}</> : <Navigate to="/dashboard" replace />;
+};
+
+const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isAuthenticated, user } = useAuth();
+  return isAuthenticated && user?.isAdmin ? <>{children}</> : <Navigate to="/admin/login" replace />;
 };
 
 const AppContent: React.FC = () => {
@@ -49,6 +56,15 @@ const AppContent: React.FC = () => {
             <ProtectedRoute>
               <Settings />
             </ProtectedRoute>
+          } 
+        />
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route 
+          path="/admin/dashboard" 
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
           } 
         />
         <Route path="/auth/success" element={<AuthSuccess />} />

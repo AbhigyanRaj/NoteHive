@@ -218,6 +218,14 @@ const AuthPage: React.FC = () => {
             </div>
 
             <div className="mt-6 text-center space-y-2">
+              <div className="mb-3">
+                <button
+                  onClick={() => navigate('/admin/login')}
+                  className="text-red-400 hover:text-red-300 text-sm transition-colors duration-200 underline"
+                >
+                  Admin Portal Access
+                </button>
+              </div>
               <p className="text-xs text-gray-500">
                 By continuing, you agree to our Terms of Service and Privacy Policy
               </p>

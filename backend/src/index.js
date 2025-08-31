@@ -7,6 +7,7 @@ const connectDB = require('./config/database');
 const authRoutes = require('./routes/auth');
 const googleAuthRoutes = require('./routes/googleAuth');
 const notesRoutes = require('./routes/notes');
+const adminRoutes = require('./routes/admin');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
 
@@ -67,6 +68,7 @@ app.use(passport.session());
 app.use('/api/auth', authRoutes);
 app.use('/api/auth', googleAuthRoutes);
 app.use('/api/notes', notesRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

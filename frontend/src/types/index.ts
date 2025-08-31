@@ -1,8 +1,10 @@
 export interface User {
-  id: string;
-  username?: string;
-  name?: string;
+  id?: string;
+  _id?: string;
+  name: string;
   email: string;
+  username?: string;
+  isAdmin?: boolean;
 }
 
 export interface Note {

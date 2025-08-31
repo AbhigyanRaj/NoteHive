@@ -31,12 +31,36 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Check for existing token on app load
   useEffect(() => {
+    setLoading(true);
     const token = localStorage.getItem('authToken');
     const userData = localStorage.getItem('user');
     
     if (token && userData) {
       try {
         const user = JSON.parse(userData);
+        
+        // Validate token is not expired for admin users
+        if (user.isAdmin) {
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const currentTime = Date.now() / 1000;
+            
+            if (payload.exp && payload.exp < currentTime) {
+              console.log('Admin token expired, clearing auth');
+              localStorage.removeItem('authToken');
+              localStorage.removeItem('user');
+              setLoading(false);
+              return;
+            }
+          } catch (tokenError) {
+            console.error('Error validating token:', tokenError);
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('user');
+            setLoading(false);
+            return;
+          }
+        }
+        
         setAuthState({
           user,
           isAuthenticated: true,
@@ -50,14 +74,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           lastLogin: new Date().toISOString()
         }));
         
-        // Connect to collaboration service on auth restore
-        setTimeout(() => {
-          collaborationService.connect(token).catch(error => {
-            console.error('Failed to connect to collaboration service on restore:', error);
-          });
-        }, 2000);
+        // Connect to collaboration service on auth restore (only for regular users)
+        if (!user.isAdmin) {
+          setTimeout(() => {
+            collaborationService.connect(token).catch(error => {
+              console.error('Failed to connect to collaboration service on restore:', error);
+            });
+          }, 2000);
+        }
         
-        console.log('AuthContext - Restored auth state for:', user.email);
+        console.log('AuthContext - Restored auth state for:', user.email, 'isAdmin:', user.isAdmin);
       } catch (error) {
         console.error('Error parsing stored user data:', error);
         localStorage.removeItem('authToken');
@@ -79,13 +105,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.setItem('authToken', token);
     localStorage.setItem('user', JSON.stringify(user));
     
-    // Connect to collaboration service with delay to ensure auth is complete
-    setTimeout(() => {
-      collaborationService.connect(token).catch(error => {
-        console.error('Failed to connect to collaboration service:', error);
-      });
-    }, 1000);
-    console.log('AuthContext - Login completed, isAuthenticated:', true);
+    // Connect to collaboration service with delay to ensure auth is complete (only for regular users)
+    if (!user.isAdmin) {
+      setTimeout(() => {
+        collaborationService.connect(token).catch(error => {
+          console.error('Failed to connect to collaboration service:', error);
+        });
+      }, 1000);
+    }
+    console.log('AuthContext - Login completed, isAuthenticated:', true, 'isAdmin:', user.isAdmin);
   };
 
   const logout = () => {
