@@ -1,0 +1,74 @@
+{
+  "name": "notehive-desktop",
+  "version": "1.0.0",
+  "description": "NoteHive Desktop Application",
+  "main": "main.js",
+  "homepage": "./",
+  "scripts": {
+    "start": "electron .",
+    "dev": "NODE_ENV=development electron .",
+    "build": "npm run copy-frontend && electron-builder",
+    "copy-frontend": "rm -rf frontend && cp -r ../frontend/dist frontend",
+    "dist": "npm run copy-frontend && electron-builder --publish=never",
+    "pack": "npm run copy-frontend && electron-builder --dir"
+  },
+  "keywords": ["notehive", "notes", "desktop", "electron"],
+  "author": "Abhigyan Raj",
+  "license": "MIT",
+  "build": {
+    "appId": "com.notehive.desktop",
+    "productName": "NoteHive",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "frontend/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "assets",
+        "to": "assets",
+        "filter": ["**/*"]
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "assets/icon.ico",
+      "requestedExecutionLevel": "asInvoker"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "NoteHive"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/icon.icns",
+      "category": "public.app-category.productivity"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/icon.png",
+      "category": "Office"
+    }
+  },
+  "devDependencies": {
+    "electron": "^33.0.2",
+    "electron-builder": "^25.0.5"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "sqlite3": "^5.1.7"
+  }
+}

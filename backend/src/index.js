@@ -88,7 +88,16 @@ const ioInstance = collaborationHandler(io);
 // Make io instance available to routes
 app.set('io', ioInstance);
 
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+server.listen(PORT, 'localhost', () => {
+  const address = server.address();
+  const url = `http://${address.address}:${address.port}`;
+  console.log(`Server running on ${url}`);
   console.log(`Socket.io server ready for real-time collaboration`);
+
+  // If running as a child process (e.g., from Electron), send ready message
+  if (process.send) {
+    process.send({ type: 'SERVER_READY', url: url });
+  }
 });
+
+//code by abhigyann:)
