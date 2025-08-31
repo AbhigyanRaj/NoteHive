@@ -54,9 +54,10 @@ router.get('/google/callback', (req, res, next) => {
       const token = generateToken(req.user._id);
       
       // Redirect to frontend with token
-      const frontendUrl = process.env.NODE_ENV === 'production' 
-        ? 'https://note-hive-fawn.vercel.app' 
-        : 'http://localhost:5173';
+      const frontendUrl = process.env.FRONTEND_URL || 
+        (process.env.NODE_ENV === 'production' 
+          ? 'https://note-hive-fawn.vercel.app' 
+          : 'http://localhost:5173');
       
       const redirectUrl = `${frontendUrl}/auth/success?token=${token}&user=${encodeURIComponent(JSON.stringify({
         id: req.user._id,
@@ -71,9 +72,10 @@ router.get('/google/callback', (req, res, next) => {
       res.redirect(redirectUrl);
     } catch (error) {
       console.error('Google OAuth callback error:', error);
-      const frontendUrl = process.env.NODE_ENV === 'production' 
-        ? 'https://note-hive-fawn.vercel.app' 
-        : 'http://localhost:5173';
+      const frontendUrl = process.env.FRONTEND_URL || 
+        (process.env.NODE_ENV === 'production' 
+          ? 'https://note-hive-fawn.vercel.app' 
+          : 'http://localhost:5173');
       res.redirect(`${frontendUrl}/auth/error`);
     }
   }
