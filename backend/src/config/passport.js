@@ -13,12 +13,14 @@ if (passport._strategies && passport._strategies.google) {
 // Only configure Google Strategy if environment variables are present
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
   // Dynamic callback URL for both development and production
-  const callbackURL = process.env.NODE_ENV === 'production' 
+  const isProduction = process.env.NODE_ENV === 'production' || process.env.RENDER;
+  const callbackURL = isProduction
     ? `https://notehive-9176.onrender.com/api/auth/google/callback`
     : `http://localhost:${process.env.PORT || 5001}/api/auth/google/callback`;
   
   console.log('OAuth Config - callbackURL:', callbackURL);
   console.log('OAuth Config - Environment:', process.env.NODE_ENV);
+  console.log('OAuth Config - isProduction:', isProduction);
 
   passport.use('google', new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,

@@ -8,10 +8,15 @@ const auth = require('../middleware/auth');
 const router = express.Router();
 
 // Initialize Google OAuth client
+const isProduction = process.env.NODE_ENV === 'production' || process.env.RENDER;
+const callbackURL = isProduction
+  ? 'https://notehive-9176.onrender.com/api/auth/google/callback'
+  : `http://localhost:${process.env.PORT || 5001}/api/auth/google/callback`;
+
 const client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
-  `${process.env.BACKEND_URL || 'https://notehive-9176.onrender.com'}/api/auth/google/callback`
+  callbackURL
 );
 
 // Generate JWT token
