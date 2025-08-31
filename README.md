@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![NoteHive Logo](frontend/public/favicon.ico)
+![NoteHive Logo](frontend/public/favicon.svg)
 
 **A modern, real-time collaborative note-taking web application with admin oversight**
 
