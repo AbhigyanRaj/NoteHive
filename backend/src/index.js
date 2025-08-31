@@ -39,6 +39,15 @@ app.use(cors({
 
 app.use(express.json());
 
+// Add request logging middleware
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  if (req.body && Object.keys(req.body).length > 0) {
+    console.log('Request body:', JSON.stringify(req.body, null, 2));
+  }
+  next();
+});
+
 // Session middleware for Passport
 app.use(session({
   secret: process.env.JWT_SECRET || 'your-secret-key',
@@ -69,11 +78,6 @@ app.get('/api/test', (req, res) => {
   res.json({ message: 'Test endpoint working', timestamp: new Date().toISOString() });
 });
 
-// Add request logging middleware
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
-  next();
-});
 
 // Initialize Socket.io for real-time collaboration
 const collaborationHandler = require('./sockets/collaboration');

@@ -24,6 +24,13 @@ const Settings: React.FC = () => {
     updateSettings({ fontSize: newFontSize });
   };
 
+  const handleFontSizeToggle = () => {
+    const fontSizes: ('sm' | 'md' | 'lg')[] = ['sm', 'md', 'lg'];
+    const currentIndex = fontSizes.indexOf(fontSize);
+    const nextIndex = (currentIndex + 1) % fontSizes.length;
+    updateSettings({ fontSize: fontSizes[nextIndex] });
+  };
+
   const handleWindowModeChange = (newMode: 'compact' | 'expanded') => {
     updateSettings({ windowMode: newMode });
   };
@@ -345,7 +352,19 @@ const Settings: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-900 mb-4">Font Size</label>
+                    <div className="flex items-center justify-between mb-4">
+                      <label className="block text-sm font-medium text-gray-900">Font Size</label>
+                      <button
+                        onClick={handleFontSizeToggle}
+                        className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200 flex items-center space-x-1"
+                        title="Toggle font size"
+                      >
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        <span>Toggle</span>
+                      </button>
+                    </div>
                     <div className="grid grid-cols-3 gap-4">
                       <button
                         onClick={() => handleFontSizeChange('sm')}
@@ -391,27 +410,48 @@ const Settings: React.FC = () => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-900 mb-4">Default Window Mode</label>
+                  <div className="flex items-center justify-between mb-4">
+                    <label className="block text-sm font-medium text-gray-900">Default Window Mode</label>
+                    <div className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                      Current: {windowMode}
+                    </div>
+                  </div>
                   <div className="grid grid-cols-2 gap-4">
                     <button
-                      onClick={() => handleWindowModeChange('compact')}
+                      onClick={() => {
+                        console.log('Setting windowMode to compact, current:', windowMode);
+                        handleWindowModeChange('compact');
+                      }}
                       className={`p-4 rounded-lg text-sm font-medium transition-colors ${
                         windowMode === 'compact'
-                          ? 'bg-gray-900 text-white'
+                          ? 'bg-gray-900 text-white border-2 border-gray-900'
                           : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'
                       }`}
                     >
-                      Compact
+                      <div className="flex flex-col items-center space-y-2">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 9V4.5M9 9H4.5M9 9L3.5 3.5M15 9h4.5M15 9V4.5M15 9l5.5-5.5M9 15v4.5M9 15H4.5M9 15l-5.5 5.5M15 15h4.5M15 15v4.5m0-4.5l5.5 5.5" />
+                        </svg>
+                        <span>Compact</span>
+                      </div>
                     </button>
                     <button
-                      onClick={() => handleWindowModeChange('expanded')}
+                      onClick={() => {
+                        console.log('Setting windowMode to expanded, current:', windowMode);
+                        handleWindowModeChange('expanded');
+                      }}
                       className={`p-4 rounded-lg text-sm font-medium transition-colors ${
                         windowMode === 'expanded'
-                          ? 'bg-gray-900 text-white'
+                          ? 'bg-gray-900 text-white border-2 border-gray-900'
                           : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'
                       }`}
                     >
-                      Expanded
+                      <div className="flex flex-col items-center space-y-2">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                        </svg>
+                        <span>Expanded</span>
+                      </div>
                     </button>
                   </div>
                 </div>

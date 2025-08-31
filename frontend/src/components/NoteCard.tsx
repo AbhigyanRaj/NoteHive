@@ -55,7 +55,7 @@ const NoteCard: React.FC<NoteCardProps> = ({ note, onClick, onToggleFavorite, on
       className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 hover:shadow-lg hover:border-gray-300 transition-all duration-200 cursor-pointer group relative"
     >
       <div className="flex justify-between items-start mb-3">
-        <h3 className="font-semibold text-gray-900 text-base truncate flex-1 group-hover:text-gray-700">
+        <h3 className="font-semibold text-gray-900 truncate flex-1 group-hover:text-gray-700">
           {note.title || 'Untitled'}
         </h3>
         <div className="flex items-center space-x-2 ml-3">
@@ -90,7 +90,7 @@ const NoteCard: React.FC<NoteCardProps> = ({ note, onClick, onToggleFavorite, on
           )}
         </div>
       </div>
-      <p className="text-sm text-gray-600 leading-relaxed line-clamp-3">
+      <p className="note-content text-gray-600 leading-relaxed line-clamp-3">
         {getPreview(note.content)}
       </p>
       {note.tags && note.tags.length > 0 && (

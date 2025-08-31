@@ -209,10 +209,19 @@ class NotesService {
     }
 
     try {
+      // Ensure we send valid data to the server
+      const serverData = {
+        title: noteData.title || 'Untitled',
+        content: noteData.content || '',
+        tags: noteData.tags || [],
+        isFavorite: noteData.isFavorite || false,
+        isArchived: noteData.isArchived || false
+      };
+
       const response = await fetch(`${API_BASE_URL}/notes`, {
         method: 'POST',
         headers: this.getAuthHeaders(),
-        body: JSON.stringify(noteData)
+        body: JSON.stringify(serverData)
       });
 
       if (!response.ok) {

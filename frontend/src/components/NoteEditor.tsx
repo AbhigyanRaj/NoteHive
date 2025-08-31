@@ -143,8 +143,6 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ note, onSave, onClose }) => {
   }, [title, content]);
 
   const handleSave = () => {
-    if (!title.trim() && !content.trim()) return;
-    
     const noteData = {
       title: title.trim() || 'Untitled',
       content: content.trim(),
@@ -319,7 +317,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ note, onSave, onClose }) => {
               placeholder="Start writing your note..."
               value={content}
               onChange={handleContentChange}
-              className="w-full h-full resize-none border-none outline-none bg-transparent text-sm sm:text-base leading-relaxed text-gray-700 placeholder-gray-400 focus:placeholder-gray-300 transition-colors duration-200"
+              className="note-content w-full h-full resize-none border-none outline-none bg-transparent leading-relaxed text-gray-700 placeholder-gray-400 focus:placeholder-gray-300 transition-colors duration-200"
             />
             
             {/* Floating word count for long content */}
