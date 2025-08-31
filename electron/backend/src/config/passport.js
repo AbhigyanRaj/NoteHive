@@ -5,22 +5,13 @@ const User = require('../models/User');
 // Load environment variables
 require('dotenv').config();
 
-// Clear any existing strategies to avoid conflicts
-if (passport._strategies && passport._strategies.google) {
-  delete passport._strategies.google;
-}
-
 // Only configure Google Strategy if environment variables are present
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
-  // Dynamic callback URL for both development and production
-  const callbackURL = process.env.NODE_ENV === 'production' 
-    ? `https://notehive-9176.onrender.com/api/auth/google/callback`
+  const callbackURL = process.env.NODE_ENV === 'production'
+    ? 'https://notehive-9176.onrender.com/api/auth/google/callback'
     : `http://localhost:${process.env.PORT || 5001}/api/auth/google/callback`;
-  
-  console.log('OAuth Config - callbackURL:', callbackURL);
-  console.log('OAuth Config - Environment:', process.env.NODE_ENV);
 
-  passport.use('google', new GoogleStrategy({
+  passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: callbackURL

@@ -71,10 +71,17 @@ class CollaborationService {
       try {
         console.log('🔌 Attempting to connect to collaboration server with token:', token ? 'present' : 'missing');
         
+        // Detect if running in Electron
+        const isElectron = typeof window !== 'undefined' && (window as any).process && (window as any).process.type;
         const isProduction = typeof window !== 'undefined' && window.location.hostname !== 'localhost';
-        this.socket = io(isProduction
-          ? 'https://notehive-9176.onrender.com' 
-          : 'http://localhost:5001', {
+        
+        const socketUrl = isElectron || window.location.hostname === 'localhost'
+          ? 'http://localhost:5001'
+          : isProduction
+            ? 'https://notehive-9176.onrender.com' 
+            : 'http://localhost:5001';
+            
+        this.socket = io(socketUrl, {
           auth: { token },
           transports: ['websocket', 'polling'],
           timeout: 10000,

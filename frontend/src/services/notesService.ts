@@ -1,9 +1,14 @@
 import type { Note } from '../types';
 
+// Detect if running in Electron
+const isElectron = typeof window !== 'undefined' && (window as any).process && (window as any).process.type;
 const isProduction = typeof window !== 'undefined' && window.location.hostname !== 'localhost';
-const API_BASE_URL = isProduction
-  ? 'https://notehive-9176.onrender.com/api' 
-  : 'http://localhost:5001/api';
+
+const API_BASE_URL = isElectron || window.location.hostname === 'localhost'
+  ? 'http://localhost:5001/api'
+  : isProduction
+    ? 'https://notehive-9176.onrender.com/api' 
+    : 'http://localhost:5001/api';
 
 // Local storage keys
 const NOTES_STORAGE_KEY = 'notehive_notes';

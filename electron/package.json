@@ -3,18 +3,18 @@
   "version": "1.0.0",
   "description": "NoteHive Desktop Application",
   "main": "main.js",
-  "homepage": "./",
   "scripts": {
     "start": "electron .",
-    "dev": "NODE_ENV=development electron .",
-    "build": "npm run copy-frontend && electron-builder",
-    "copy-frontend": "rm -rf frontend && cp -r ../frontend/dist frontend",
-    "dist": "npm run copy-frontend && electron-builder --publish=never",
-    "pack": "npm run copy-frontend && electron-builder --dir"
+    "dev": "electron . --dev",
+    "build": "electron-builder",
+    "dist": "electron-builder --publish=never",
+    "dist-win": "electron-builder --win --publish=never",
+    "dist-mac": "electron-builder --mac --publish=never",
+    "dist-all": "electron-builder --win --mac --publish=never",
+    "copy-frontend": "cp -r ../frontend/dist/* ./frontend/",
+    "prepare-backend": "cp -r ../backend/src ./backend/ && cp ../backend/package.json ./backend/",
+    "postinstall": "electron-builder install-app-deps"
   },
-  "keywords": ["notehive", "notes", "desktop", "electron"],
-  "author": "Abhigyan Raj",
-  "license": "MIT",
   "build": {
     "appId": "com.notehive.desktop",
     "productName": "NoteHive",
@@ -23,15 +23,16 @@
     },
     "files": [
       "main.js",
+      "preload.js",
       "frontend/**/*",
-      "node_modules/**/*",
-      "package.json"
+      "backend/**/*",
+      "assets/**/*",
+      "node_modules/**/*"
     ],
     "extraResources": [
       {
-        "from": "assets",
-        "to": "assets",
-        "filter": ["**/*"]
+        "from": "backend",
+        "to": "backend"
       }
     ],
     "win": {
@@ -41,34 +42,49 @@
           "arch": ["x64"]
         }
       ],
-      "icon": "assets/icon.ico",
+      "icon": "assets/icon.png",
       "requestedExecutionLevel": "asInvoker"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["x64", "arm64"]
+        }
+      ],
+      "icon": "assets/icon.png",
+      "category": "public.app-category.productivity"
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "shortcutName": "NoteHive"
+      "createStartMenuShortcut": true
     },
-    "mac": {
-      "target": "dmg",
-      "icon": "assets/icon.icns",
-      "category": "public.app-category.productivity"
-    },
-    "linux": {
-      "target": "AppImage",
-      "icon": "assets/icon.png",
-      "category": "Office"
+    "dmg": {
+      "title": "NoteHive Installer",
+      "icon": "assets/icon.png"
     }
   },
-  "devDependencies": {
-    "electron": "^33.0.2",
-    "electron-builder": "^25.0.5"
-  },
   "dependencies": {
+    "express": "^4.18.2",
     "cors": "^2.8.5",
-    "express": "^4.21.0",
-    "sqlite3": "^5.1.7"
-  }
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^7.5.0",
+    "socket.io": "^4.8.1",
+    "dotenv": "^16.3.1",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "express-session": "^1.18.2",
+    "express-validator": "^7.0.1",
+    "google-auth-library": "^10.3.0",
+    "redis": "^5.8.2"
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  },
+  "author": "abhigyann",
+  "license": "MIT"
 }

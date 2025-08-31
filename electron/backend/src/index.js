@@ -88,9 +88,9 @@ const ioInstance = collaborationHandler(io);
 // Make io instance available to routes
 app.set('io', ioInstance);
 
-server.listen(PORT, '0.0.0.0', () => {
+server.listen(PORT, 'localhost', () => {
   const address = server.address();
-  const url = `http://localhost:${address.port}`;
+  const url = `http://${address.address}:${address.port}`;
   console.log(`Server running on ${url}`);
   console.log(`Socket.io server ready for real-time collaboration`);
 
