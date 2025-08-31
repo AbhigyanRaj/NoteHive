@@ -137,11 +137,6 @@ const AuthPage: React.FC = () => {
                   </svg>
                   <span>Continue with Google</span>
                 </button>
-                <div className="mt-2 text-center">
-                  <span className="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded-md border border-amber-200">
-                    🚧 Google Auth under development
-                  </span>
-                </div>
               </div>
 
               <div className="relative">

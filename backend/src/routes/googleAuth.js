@@ -58,12 +58,17 @@ router.get('/google/callback', (req, res, next) => {
         ? 'https://note-hive-fawn.vercel.app' 
         : 'http://localhost:5173';
       
-      res.redirect(`${frontendUrl}/auth/success?token=${token}&user=${encodeURIComponent(JSON.stringify({
+      const redirectUrl = `${frontendUrl}/auth/success?token=${token}&user=${encodeURIComponent(JSON.stringify({
         id: req.user._id,
         name: req.user.name,
         email: req.user.email,
         avatar: req.user.avatar
-      }))}`);
+      }))}`;
+      
+      console.log('🔄 Google OAuth Success - Redirecting to:', redirectUrl);
+      console.log('👤 User authenticated:', req.user.name, req.user.email);
+      
+      res.redirect(redirectUrl);
     } catch (error) {
       console.error('Google OAuth callback error:', error);
       const frontendUrl = process.env.NODE_ENV === 'production' 
