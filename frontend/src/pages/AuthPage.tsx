@@ -152,7 +152,7 @@ const AuthPage: React.FC = () => {
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-5">
+              <form onSubmit={handleSubmit} className="space-y-5" data-form-type="other">
                 {!isLogin && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -164,6 +164,8 @@ const AuthPage: React.FC = () => {
                       placeholder="Enter your full name"
                       value={formData.name}
                       onChange={handleInputChange}
+                      autoComplete="name"
+                      data-form-type="other"
                       className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition-all duration-200 hover:border-gray-300"
                       required
                     />
@@ -180,6 +182,8 @@ const AuthPage: React.FC = () => {
                     placeholder="Enter your email"
                     value={formData.email}
                     onChange={handleInputChange}
+                    autoComplete="username"
+                    data-form-type="other"
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition-all duration-200 hover:border-gray-300"
                     required
                   />
@@ -195,6 +199,8 @@ const AuthPage: React.FC = () => {
                     placeholder="Enter your password"
                     value={formData.password}
                     onChange={handleInputChange}
+                    autoComplete={isLogin ? "current-password" : "new-password"}
+                    data-form-type="other"
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition-all duration-200 hover:border-gray-300"
                     required
                   />
