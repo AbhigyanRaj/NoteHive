@@ -9,18 +9,19 @@ const collaborationHandler = (io) => {
   const userCursors = new Map(); // noteId -> Map(userId -> cursorPosition)
   const typingUsers = new Map(); // noteId -> Set of userIds
 
-  // Broadcast note creation to all users
+  // Broadcast note creation to the note owner only
   const broadcastNoteCreated = (note) => {
-    console.log('📡 Broadcasting note-created event to all clients:', note._id);
-    io.emit('note-created', {
+    console.log('📡 Broadcasting note-created event to note owner:', note.createdBy);
+    io.to(`user_${note.createdBy}`).emit('note-created', {
       note,
       timestamp: new Date().toISOString()
     });
   };
 
-  // Broadcast note deletion to all users
-  const broadcastNoteDeleted = (noteId) => {
-    io.emit('note-deleted', {
+  // Broadcast note deletion to the note owner only
+  const broadcastNoteDeleted = (noteId, ownerId) => {
+    console.log('📡 Broadcasting note-deleted event to note owner:', ownerId);
+    io.to(`user_${ownerId}`).emit('note-deleted', {
       noteId,
       timestamp: new Date().toISOString()
     });
@@ -81,10 +82,10 @@ const collaborationHandler = (io) => {
         const { noteId } = data;
         const userId = socket.userId;
 
-        // Find note (accessible to all users now)
-        const note = await Note.findById(noteId);
+        // Find note (only accessible to owner)
+        const note = await Note.findOne({ _id: noteId, createdBy: userId });
         if (!note) {
-          socket.emit('error', { message: 'Note not found' });
+          socket.emit('error', { message: 'Note not found or access denied' });
           return;
         }
 
@@ -161,10 +162,10 @@ const collaborationHandler = (io) => {
         const { noteId, changes, version } = data;
         const userId = socket.userId;
 
-        // Find note (now accessible to all users)
-        const note = await Note.findById(noteId);
+        // Find note (only accessible to owner)
+        const note = await Note.findOne({ _id: noteId, createdBy: userId });
         if (!note) {
-          socket.emit('error', { message: 'Note not found' });
+          socket.emit('error', { message: 'Note not found or access denied' });
           return;
         }
 
@@ -174,8 +175,8 @@ const collaborationHandler = (io) => {
         note.lastSynced = new Date();
         await note.save();
 
-        // Broadcast changes to ALL connected users (not just room members)
-        io.emit('note-changed', {
+        // Broadcast changes only to the note owner
+        io.to(`user_${userId}`).emit('note-changed', {
           noteId,
           changes,
           version: version + 1,

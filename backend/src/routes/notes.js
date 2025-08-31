@@ -81,7 +81,7 @@ router.get('/:id', auth, async (req, res) => {
 router.post('/', [
   auth,
   body('title').trim().isLength({ min: 1, max: 200 }).withMessage('Title must be 1-200 characters'),
-  body('content').trim().isLength({ min: 1, max: 10000 }).withMessage('Content must be 1-10000 characters')
+  body('content').optional().trim().isLength({ max: 10000 }).withMessage('Content must be at most 10000 characters')
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -118,9 +118,15 @@ router.post('/', [
     });
   } catch (error) {
     console.error('Create note error:', error);
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
     res.status(500).json({
       success: false,
-      message: 'Server error while creating note'
+      message: 'Server error while creating note',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });
@@ -204,9 +210,9 @@ router.delete('/:id', auth, async (req, res) => {
       });
     }
     
-    // Broadcast note deletion to all connected users
+    // Broadcast note deletion to the note owner
     if (req.app.get('io')) {
-      req.app.get('io').broadcastNoteDeleted(req.params.id);
+      req.app.get('io').broadcastNoteDeleted(req.params.id, note.createdBy);
     }
     
     res.json({
@@ -229,8 +235,8 @@ router.post('/sync', auth, async (req, res) => {
   try {
     const { notes: clientNotes = [], lastSync } = req.body;
     
-    // Get server notes modified after last sync
-    const serverQuery = {};
+    // Get server notes modified after last sync (only user's notes)
+    const serverQuery = { createdBy: req.user._id };
     if (lastSync) {
       serverQuery.lastSynced = { $gt: new Date(lastSync) };
     }
@@ -248,8 +254,8 @@ router.post('/sync', auth, async (req, res) => {
     
     for (const clientNote of clientNotes) {
       if (clientNote._id) {
-        // Update existing note
-        const existingNote = await Note.findById(clientNote._id);
+        // Update existing note (only if user owns it)
+        const existingNote = await Note.findOne({ _id: clientNote._id, createdBy: req.user._id });
         
         if (existingNote) {
           // Check for conflicts (server version newer than client)
