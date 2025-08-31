@@ -6,7 +6,7 @@ const auth = require('../middleware/auth');
 const router = express.Router();
 
 // @route   GET /api/notes
-// @desc    Get all notes (shared across all users)
+// @desc    Get user's notes
 // @access  Private
 router.get('/', auth, async (req, res) => {
   try {
@@ -15,7 +15,7 @@ router.get('/', auth, async (req, res) => {
     const search = req.query.search || '';
     const skip = (page - 1) * limit;
 
-    let query = {};
+        let query = { createdBy: req.user._id };
     
     if (search) {
       query.$text = { $search: search };
@@ -51,7 +51,7 @@ router.get('/', auth, async (req, res) => {
 // @access  Private
 router.get('/:id', auth, async (req, res) => {
   try {
-    const note = await Note.findById(req.params.id)
+    const note = await Note.findOne({ _id: req.params.id, createdBy: req.user._id })
       .populate('createdBy', 'name email')
       .populate('lastEditedBy', 'name email');
     
@@ -143,7 +143,7 @@ router.put('/:id', [
       });
     }
     
-    const note = await Note.findById(req.params.id);
+    const note = await Note.findOne({ _id: req.params.id, createdBy: req.user._id });
     
     if (!note) {
       return res.status(404).json({
@@ -195,7 +195,7 @@ router.put('/:id', [
 // @access  Private
 router.delete('/:id', auth, async (req, res) => {
   try {
-    const note = await Note.findByIdAndDelete(req.params.id);
+    const note = await Note.findOneAndDelete({ _id: req.params.id, createdBy: req.user._id });
     
     if (!note) {
       return res.status(404).json({
