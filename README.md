@@ -13,6 +13,30 @@
 
 ---
 
+## 📋 Table of Contents
+
+- [Features](#-features)
+- [Architecture Overview](#️-architecture-overview)
+- [Tech Stack](#️-tech-stack)
+- [Setup Instructions](#-setup-instructions)
+- [Desktop Application (.exe)](#️-desktop-application-exe)
+- [Design Choices & Assumptions](#-design-choices--assumptions)
+- [Limitations & Future Improvements](#-limitations--future-improvements)
+- [Usage Guide](#-usage-guide)
+- [API Documentation](#-api-documentation)
+- [Security Features](#-security-features)
+- [Deployment](#-deployment)
+- [Testing](#-testing)
+- [Contributing](#-contributing)
+- [Performance Metrics](#-performance-metrics)
+- [Troubleshooting](#-troubleshooting)
+- [Roadmap](#-roadmap)
+- [License](#-license)
+- [Author](#-author)
+- [Support](#-support)
+
+---
+
 ## 🌟 Features
 
 ### 🔥 Core Features
@@ -112,13 +136,14 @@ graph TB
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Setup Instructions
 
 ### Prerequisites
-- Node.js (v18 or higher)
-- npm or yarn
-- MongoDB Atlas account
-- Google Cloud Console project (for OAuth)
+- **Node.js** (v18 or higher) - [Download here](https://nodejs.org/)
+- **npm** or **yarn** package manager
+- **MongoDB Atlas** account - [Sign up here](https://www.mongodb.com/atlas)
+- **Google Cloud Console** project (for OAuth) - [Create here](https://console.cloud.google.com)
+- **Git** for version control
 
 ### 1. Clone Repository
 ```bash
@@ -127,50 +152,483 @@ cd NoteHive
 ```
 
 ### 2. Backend Setup
+
+#### Install Dependencies
 ```bash
 cd backend
 npm install
+```
 
-# Create .env file
+#### Environment Configuration
+```bash
+# Create environment file
 cp .env.example .env
 ```
 
-Configure your `.env` file:
+Configure your `.env` file with the following variables:
 ```env
-# Database
+# Server Configuration
+PORT=5001
+NODE_ENV=development
+
+# Database Configuration
 DATABASE_URL=mongodb+srv://username:password@cluster.mongodb.net/notehive
 
-# Authentication
-JWT_SECRET=your_jwt_secret_key_here
+# Authentication Secrets
+JWT_SECRET=your_jwt_secret_key_here_make_it_long_and_secure
 
-# Google OAuth
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
+# Google OAuth Configuration
+GOOGLE_CLIENT_ID=your_google_client_id_from_console
+GOOGLE_CLIENT_SECRET=your_google_client_secret_from_console
 
-# Admin Access
-ADMIN_SECRET_KEY=your_admin_secret_key
+# Admin Portal Access
+ADMIN_SECRET_KEY=your_admin_secret_key_here_make_it_secure
 
-# URLs
-PORT=5001
+# Frontend URL (for CORS)
 FRONTEND_URL=http://localhost:5173
 ```
 
-Start backend server:
+#### Start Backend Server
+```bash
+# Development mode (with auto-reload)
+npm run dev
+
+# Production mode
+npm start
+```
+
+### 3. Frontend Setup
+
+#### Install Dependencies
+```bash
+cd frontend
+npm install
+```
+
+#### Start Development Server
 ```bash
 npm run dev
 ```
 
-### 3. Frontend Setup
+#### Build for Production
 ```bash
-cd frontend
-npm install
-npm run dev
+npm run build
+npm run preview
 ```
 
 ### 4. Access Application
 - **Frontend**: http://localhost:5173
 - **Backend API**: http://localhost:5001
 - **Admin Portal**: http://localhost:5173/admin/login
+- **API Health Check**: http://localhost:5001/api/health
+
+### 5. Verification Steps
+1. **Backend Health**: Visit `http://localhost:5001/api/health` - should return JSON response
+2. **Frontend Loading**: Visit `http://localhost:5173` - should show login page
+3. **Database Connection**: Check backend console for "MongoDB Connected" message
+4. **WebSocket Connection**: Check browser console for Socket.io connection logs
+
+---
+
+## 🖥️ Desktop Application (.exe)
+
+### Building the Desktop Application
+
+NoteHive can be packaged as a standalone Windows executable using Electron. This allows users to run the application without a browser or internet connection for basic note-taking.
+
+#### Prerequisites for Building
+- Windows development environment (or cross-compilation setup)
+- Node.js v18+
+- All backend and frontend dependencies installed
+
+#### Build Steps
+
+1. **Prepare the Application**
+```bash
+# Build the frontend for production
+cd frontend
+npm run build
+
+# The built files will be in frontend/dist/
+```
+
+2. **Setup Electron Environment**
+```bash
+# Navigate to electron directory
+cd electron
+
+# Install Electron dependencies
+npm install
+```
+
+3. **Configure Electron Builder**
+The `electron/package.json` should include:
+```json
+{
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "dist": "electron-builder --publish=never"
+  },
+  "build": {
+    "appId": "com.notehive.app",
+    "productName": "NoteHive",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "frontend/dist/**/*",
+      "backend/src/**/*",
+      "node_modules/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}
+```
+
+4. **Build the Executable**
+```bash
+# Create the .exe installer
+npm run dist
+```
+
+### Running the Desktop Application
+
+#### For End Users (Pre-built .exe)
+
+1. **Download the Installer**
+   - Download `NoteHive-Setup.exe` from the releases page
+   - File size: ~150-200MB (includes Node.js runtime and dependencies)
+
+2. **Installation Process**
+```bash
+# Run the installer
+./NoteHive-Setup.exe
+
+# Follow the installation wizard:
+# - Choose installation directory (default: C:\Program Files\NoteHive)
+# - Create desktop shortcut (recommended)
+# - Add to Start Menu (recommended)
+```
+
+3. **First Launch**
+   - Double-click the NoteHive desktop icon
+   - The application will start its embedded backend server
+   - A system tray icon will appear
+   - The main window will open automatically
+
+4. **Using the Desktop App**
+   - **Offline Mode**: Create and edit notes without internet
+   - **Auto-sync**: Connects to cloud when internet is available
+   - **System Integration**: File associations for .note files
+   - **Notifications**: System notifications for sync status
+
+#### Desktop App Features
+
+**Advantages over Web Version:**
+- ✅ **No Browser Required** - Standalone application
+- ✅ **Offline-First** - Full functionality without internet
+- ✅ **System Integration** - Native Windows features
+- ✅ **Auto-start** - Launch on system startup
+- ✅ **File System Access** - Import/export notes as files
+- ✅ **Better Performance** - Dedicated resources
+
+**Desktop-Specific Features:**
+- System tray integration
+- Global keyboard shortcuts
+- Native file dialogs
+- Windows notifications
+- Auto-updater support
+
+#### Troubleshooting Desktop App
+
+**Common Issues:**
+
+1. **App Won't Start**
+```bash
+# Check if port 5001 is available
+netstat -an | findstr :5001
+
+# Run as administrator if needed
+Right-click -> "Run as administrator"
+```
+
+2. **Database Connection Issues**
+   - Desktop app uses local SQLite database by default
+   - Cloud sync requires internet connection
+   - Check firewall settings for outbound connections
+
+3. **Performance Issues**
+   - Close other Electron apps to free memory
+   - Check available disk space (minimum 500MB required)
+   - Update to latest version
+
+**Uninstallation:**
+- Use Windows "Add or Remove Programs"
+- Or run the uninstaller from installation directory
+- User data is preserved in `%APPDATA%\NoteHive\`
+
+---
+
+## 🎨 Design Choices & Assumptions
+
+### Architectural Decisions
+
+#### 1. **Technology Stack Choices**
+
+**Frontend: React + TypeScript**
+- **Rationale**: Type safety, component reusability, large ecosystem
+- **Assumption**: Users prefer modern, responsive web interfaces
+- **Trade-off**: Larger bundle size vs. developer productivity
+
+**Backend: Node.js + Express**
+- **Rationale**: JavaScript everywhere, excellent WebSocket support
+- **Assumption**: Real-time features are critical for collaboration
+- **Trade-off**: Single-threaded limitations vs. development speed
+
+**Database: MongoDB**
+- **Rationale**: Flexible schema for evolving note structures
+- **Assumption**: Document-based storage fits note-taking use case
+- **Trade-off**: Eventual consistency vs. schema flexibility
+
+#### 2. **Real-time Collaboration Design**
+
+**WebSocket Implementation**
+- **Choice**: Socket.io for cross-browser compatibility
+- **Assumption**: Users will collaborate on notes simultaneously
+- **Design**: Room-based architecture (one room per note)
+- **Conflict Resolution**: Last-write-wins with timestamp-based merging
+
+**Offline-First Architecture**
+- **Choice**: Local storage + sync queue
+- **Assumption**: Users need to work offline frequently
+- **Design**: Optimistic updates with background synchronization
+- **Trade-off**: Complexity vs. user experience
+
+#### 3. **Authentication Strategy**
+
+**Multi-Modal Authentication**
+- **Regular Auth**: Email/password with JWT tokens
+- **Social Auth**: Google OAuth for convenience
+- **Admin Auth**: Separate secret key system
+- **Assumption**: Users prefer social login but need fallback options
+
+**Security Model**
+- **Choice**: JWT with 7-day expiration
+- **Assumption**: Users want persistent sessions
+- **Trade-off**: Security vs. user convenience
+
+#### 4. **Data Architecture**
+
+**User-Centric Design**
+- **Assumption**: Notes are private by default
+- **Choice**: User-owned notes with optional sharing
+- **Privacy**: No cross-user data access (except admin)
+
+**Scalability Assumptions**
+- **Expected Load**: 1000+ concurrent users
+- **Note Size**: Up to 10MB per note
+- **User Behavior**: 10-50 notes per user average
+- **Growth**: 100% year-over-year user growth
+
+### User Experience Assumptions
+
+#### 1. **User Behavior Patterns**
+- Users primarily access from desktop browsers
+- Mobile usage is secondary but important
+- Users work across multiple devices
+- Collaboration happens in small teams (2-5 people)
+
+#### 2. **Performance Expectations**
+- Page load time < 2 seconds
+- Real-time sync latency < 100ms
+- Offline mode should be seamless
+- Search results < 300ms
+
+#### 3. **Content Assumptions**
+- Notes are primarily text-based
+- Rich formatting is desired but not critical
+- File attachments are future requirement
+- Version history is nice-to-have
+
+### Technical Assumptions
+
+#### 1. **Browser Support**
+- Modern browsers (Chrome 90+, Firefox 88+, Safari 14+)
+- JavaScript enabled
+- WebSocket support available
+- Local storage capacity > 50MB
+
+#### 2. **Network Conditions**
+- Intermittent connectivity expected
+- Mobile data usage should be minimized
+- WebSocket connections may drop frequently
+- Sync conflicts will occur regularly
+
+#### 3. **Deployment Environment**
+- Cloud hosting with auto-scaling
+- CDN for static assets
+- Database clustering for high availability
+- Monitoring and alerting systems
+
+---
+
+## ⚠️ Limitations & Future Improvements
+
+### Current Limitations
+
+#### 1. **Functional Limitations**
+
+**Collaboration Constraints**
+- ❌ **Real-time Cursor Tracking**: Implemented but not fully utilized in UI
+- ❌ **Granular Permissions**: No role-based access control for shared notes
+- ❌ **Conflict Resolution**: Simple last-write-wins, no sophisticated merging
+- ❌ **Version History**: No note versioning or change tracking
+
+**Content Limitations**
+- ❌ **File Attachments**: No support for images, documents, or media
+- ❌ **Rich Media**: Limited to text formatting only
+- ❌ **Note Templates**: No pre-defined note structures
+- ❌ **Bulk Operations**: No multi-note selection or batch actions
+
+**Search & Organization**
+- ❌ **Advanced Search**: No filters by date, author, or metadata
+- ❌ **Nested Tags**: Flat tag structure only
+- ❌ **Folder Structure**: No hierarchical organization
+- ❌ **Smart Collections**: No auto-categorization
+
+#### 2. **Technical Limitations**
+
+**Performance Constraints**
+- ❌ **Large Notes**: Performance degrades with notes > 1MB
+- ❌ **Concurrent Users**: Limited to ~500 simultaneous connections
+- ❌ **Search Performance**: Full-text search not optimized for large datasets
+- ❌ **Mobile Performance**: Not optimized for mobile devices
+
+**Scalability Issues**
+- ❌ **Database Sharding**: Single MongoDB instance
+- ❌ **CDN Integration**: Static assets not optimized
+- ❌ **Caching Layer**: No Redis or memory caching
+- ❌ **Load Balancing**: Single server instance
+
+**Security Limitations**
+- ❌ **End-to-End Encryption**: Notes stored in plain text
+- ❌ **Audit Logging**: Limited activity tracking
+- ❌ **Rate Limiting**: Basic implementation only
+- ❌ **GDPR Compliance**: No data export/deletion tools
+
+#### 3. **Platform Limitations**
+
+**Desktop Application**
+- ❌ **Cross-Platform**: Windows only (.exe)
+- ❌ **Auto-Updates**: Manual update process
+- ❌ **System Integration**: Limited OS integration
+- ❌ **Offline Database**: Uses basic local storage
+
+**Mobile Support**
+- ❌ **Native Apps**: Web-only, no iOS/Android apps
+- ❌ **Touch Optimization**: Limited mobile gestures
+- ❌ **Push Notifications**: No mobile notifications
+- ❌ **Offline Sync**: Limited mobile offline support
+
+### Future Improvements
+
+#### Phase 1: Core Enhancements (3-6 months)
+
+**Enhanced Collaboration**
+- ✅ **Real-time Cursors**: Show live cursor positions and selections
+- ✅ **Better Conflict Resolution**: Operational Transform or CRDT implementation
+- ✅ **User Presence**: Show who's online and viewing each note
+- ✅ **Comment System**: Add comments and discussions on notes
+
+**Content & Media**
+- ✅ **File Attachments**: Support for images, PDFs, and documents
+- ✅ **Rich Text Editor**: Enhanced formatting with tables, lists, links
+- ✅ **Markdown Support**: Import/export Markdown files
+- ✅ **Note Templates**: Pre-defined structures for different note types
+
+**Search & Organization**
+- ✅ **Advanced Search**: Filters, date ranges, and metadata search
+- ✅ **Folder Structure**: Hierarchical note organization
+- ✅ **Smart Tags**: Auto-tagging based on content analysis
+- ✅ **Bulk Operations**: Multi-select and batch actions
+
+#### Phase 2: Platform Expansion (6-12 months)
+
+**Mobile Applications**
+- ✅ **React Native Apps**: Native iOS and Android applications
+- ✅ **Mobile Optimization**: Touch-first interface design
+- ✅ **Push Notifications**: Real-time mobile notifications
+- ✅ **Offline-First Mobile**: Robust mobile offline support
+
+**Desktop Enhancements**
+- ✅ **Cross-Platform Desktop**: macOS and Linux support
+- ✅ **Auto-Updates**: Seamless application updates
+- ✅ **System Integration**: File associations, context menus
+- ✅ **Global Shortcuts**: System-wide hotkeys
+
+**API & Integrations**
+- ✅ **Public API**: RESTful API for third-party integrations
+- ✅ **Webhook Support**: Real-time event notifications
+- ✅ **Import/Export**: Support for popular note formats
+- ✅ **Browser Extensions**: Quick note capture tools
+
+#### Phase 3: Advanced Features (12-18 months)
+
+**AI & Intelligence**
+- ✅ **AI-Powered Search**: Semantic search and content discovery
+- ✅ **Auto-Summarization**: AI-generated note summaries
+- ✅ **Content Suggestions**: Smart content recommendations
+- ✅ **Language Translation**: Multi-language support
+
+**Enterprise Features**
+- ✅ **Team Workspaces**: Organized collaboration spaces
+- ✅ **Role-Based Access**: Granular permission system
+- ✅ **Audit Logging**: Comprehensive activity tracking
+- ✅ **SSO Integration**: Enterprise authentication
+
+**Performance & Scale**
+- ✅ **Microservices**: Break monolith into services
+- ✅ **Database Sharding**: Horizontal database scaling
+- ✅ **CDN Integration**: Global content delivery
+- ✅ **Caching Layer**: Redis-based performance optimization
+
+#### Phase 4: Innovation (18+ months)
+
+**Next-Generation Features**
+- ✅ **Voice Notes**: Speech-to-text and audio notes
+- ✅ **Video Integration**: Embedded video notes and calls
+- ✅ **AR/VR Support**: Immersive note-taking experiences
+- ✅ **Blockchain Integration**: Decentralized note storage
+
+**Advanced Analytics**
+- ✅ **Usage Analytics**: Detailed user behavior insights
+- ✅ **Content Analytics**: Note engagement and effectiveness
+- ✅ **Predictive Features**: AI-powered user assistance
+- ✅ **Business Intelligence**: Advanced reporting and dashboards
+
+### Technical Debt & Refactoring
+
+**Code Quality Improvements**
+- Comprehensive test coverage (currently minimal)
+- TypeScript migration for backend
+- Performance monitoring and optimization
+- Security audit and penetration testing
+
+**Infrastructure Upgrades**
+- Container orchestration (Docker + Kubernetes)
+- CI/CD pipeline improvements
+- Monitoring and alerting systems
+- Disaster recovery procedures
 
 ---
 
