@@ -52,7 +52,7 @@ const NoteCard: React.FC<NoteCardProps> = ({ note, onClick, onToggleFavorite, on
   return (
     <div
       onClick={() => onClick(note)}
-      className="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-lg hover:border-gray-300 transition-all duration-200 cursor-pointer group relative"
+      className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 hover:shadow-lg hover:border-gray-300 transition-all duration-200 cursor-pointer group relative"
     >
       <div className="flex justify-between items-start mb-3">
         <h3 className="font-semibold text-gray-900 text-base truncate flex-1 group-hover:text-gray-700">

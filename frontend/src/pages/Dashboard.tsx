@@ -16,7 +16,6 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [activeFilter, setActiveFilter] = useState<'all' | 'recent' | 'favorites'>('all');
-  const [syncStatus, setSyncStatus] = useState(notesService.getSyncStatus());
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -102,11 +101,7 @@ const Dashboard: React.FC = () => {
   }, [selectedNote]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setSyncStatus(notesService.getSyncStatus());
-    }, 1000);
-    
-    return () => clearInterval(interval);
+    // Sync status monitoring removed for now
   }, []);
 
   const loadNotes = async (page = 1, append = false) => {
@@ -200,17 +195,24 @@ const Dashboard: React.FC = () => {
         setNotes([savedNote, ...notes]);
         console.log('✅ Note created locally, broadcasting should happen automatically');
       } else if (selectedNote) {
-        const noteId = selectedNote._id || selectedNote.localId || selectedNote.id!;
-        console.log('📝 Updating existing note:', noteId);
+        const noteId = selectedNote._id || selectedNote.localId || selectedNote.id;
+        
+        if (!noteId) {
+          console.error('❌ No valid note ID found for update:', selectedNote);
+          throw new Error('Cannot update note: No valid ID found');
+        }
+        
         savedNote = await notesService.updateNote(noteId, noteData);
         setNotes(notes.map(note => 
           (note._id || note.localId || note.id) === noteId 
             ? savedNote 
             : note
         ));
+      } else {
+        console.error('❌ No note selected for update');
+        throw new Error('No note selected for update');
       }
       setIsEditorOpen(false);
-      setSyncStatus(notesService.getSyncStatus());
     } catch (error) {
       console.error('Error saving note:', error);
     }
@@ -222,7 +224,6 @@ const Dashboard: React.FC = () => {
       setNotes(notes.filter(note => 
         (note._id || note.localId || note.id) !== noteId
       ));
-      setSyncStatus(notesService.getSyncStatus());
     } catch (error) {
       console.error('Error deleting note:', error);
     }
@@ -237,7 +238,6 @@ const Dashboard: React.FC = () => {
       setNotes(notes.map(n => 
         (n._id || n.localId || n.id) === noteId ? updatedNote : n
       ));
-      setSyncStatus(notesService.getSyncStatus());
     } catch (error) {
       console.error('Error toggling favorite:', error);
     }
@@ -259,29 +259,21 @@ const Dashboard: React.FC = () => {
         onToggleMode={handleToggleMode}
       />
       
-      <div className="container mx-auto px-6 py-8">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Your Notes</h2>
+      <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8">
+        <div className="mb-6 sm:mb-8">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Your Notes</h2>
           <div className="flex items-center space-x-4 text-sm text-gray-600">
             <span>{notes.length} {notes.length === 1 ? 'note' : 'notes'}</span>
             <div className="flex items-center space-x-2">
-              <div className={`w-2 h-2 rounded-full ${
-                syncStatus.isOnline ? 'bg-green-500' : 'bg-red-500'
-              }`}></div>
-              <span>
-                {syncStatus.isOnline ? 'Online' : 'Offline'}
-                {syncStatus.pendingActions > 0 && ` • ${syncStatus.pendingActions} pending`}
-              </span>
+              <div className="w-2 h-2 rounded-full bg-green-500"></div>
+              <span>Synced</span>
             </div>
-            {syncStatus.lastSync && (
-              <span>Last synced: {new Date(syncStatus.lastSync).toLocaleTimeString()}</span>
-            )}
           </div>
         </div>
 
-        {/* Search Bar */}
-        <div className="mb-6">
-          <div className="relative max-w-md">
+        {/* Search and Filter Section */}
+        <div className="mb-6 sm:mb-8 space-y-4">
+          <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -305,48 +297,52 @@ const Dashboard: React.FC = () => {
               </button>
             )}
           </div>
-        </div>
-
-        <div className="flex justify-between items-center mb-8">
-          <div className="flex space-x-2">
-            <button 
-              onClick={() => setActiveFilter('all')}
-              className={`px-4 py-2 rounded-xl text-sm font-medium shadow-sm transition-all duration-200 ${
-                activeFilter === 'all' 
-                  ? 'bg-gray-900 text-white' 
-                  : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
-              }`}
+          
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setActiveFilter('all')}
+                className={`px-3 sm:px-4 py-2 rounded-xl text-sm font-medium shadow-sm transition-all duration-200 ${
+                  activeFilter === 'all' 
+                    ? 'bg-gray-900 text-white' 
+                    : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                }`}
+              >
+                All Notes
+              </button>
+              <button
+                onClick={() => setActiveFilter('recent')}
+                className={`px-3 sm:px-4 py-2 rounded-xl text-sm font-medium shadow-sm transition-all duration-200 ${
+                  activeFilter === 'recent' 
+                    ? 'bg-gray-900 text-white' 
+                    : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                }`}
+              >
+                Recent
+              </button>
+              <button
+                onClick={() => setActiveFilter('favorites')}
+                className={`px-3 sm:px-4 py-2 rounded-xl text-sm font-medium shadow-sm transition-all duration-200 ${
+                  activeFilter === 'favorites' 
+                    ? 'bg-gray-900 text-white' 
+                    : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                }`}
+              >
+                Favorites
+              </button>
+            </div>
+          
+            <button
+              onClick={handleSettingsClick}
+              className="bg-white text-gray-700 p-2 rounded-xl border border-gray-200 hover:bg-gray-50 transition-all duration-200 self-start sm:self-auto"
+              title="Settings"
             >
-              All Notes
-            </button>
-            <button 
-              onClick={() => setActiveFilter('recent')}
-              className={`px-4 py-2 rounded-xl text-sm font-medium shadow-sm transition-all duration-200 ${
-                activeFilter === 'recent' 
-                  ? 'bg-gray-900 text-white' 
-                  : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
-              }`}
-            >
-              Recent
-            </button>
-            <button 
-              onClick={() => setActiveFilter('favorites')}
-              className={`px-4 py-2 rounded-xl text-sm font-medium shadow-sm transition-all duration-200 ${
-                activeFilter === 'favorites' 
-                  ? 'bg-gray-900 text-white' 
-                  : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
-              }`}
-            >
-              Favorites
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
             </button>
           </div>
-          
-          <button
-            onClick={handleSettingsClick}
-            className="bg-white text-gray-700 px-4 py-2 rounded-xl text-sm border border-gray-200 hover:bg-gray-50 transition-all duration-200"
-          >
-            Settings
-          </button>
         </div>
 
         {loading ? (
@@ -383,10 +379,10 @@ const Dashboard: React.FC = () => {
           </div>
         ) : (
           <>
-            <div className={`grid gap-6 ${
+            <div className={`grid gap-4 sm:gap-6 ${
               windowMode === 'compact' 
                 ? 'grid-cols-1' 
-                : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+                : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
             }`}>
               {notes.map((note, index) => {
                 const noteKey = note._id || note.localId || note.id || `note-${index}`;

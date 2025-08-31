@@ -72,6 +72,9 @@ const collaborationHandler = (io) => {
       currentNote: null
     });
 
+    // Join user to their personal room for receiving all note updates
+    socket.join(`user_${socket.userId}`);
+
     // Handle joining a note room
     socket.on('join-note', async (data) => {
       try {

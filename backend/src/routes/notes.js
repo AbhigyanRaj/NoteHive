@@ -31,6 +31,7 @@ router.get('/', auth, async (req, res) => {
     const total = await Note.countDocuments(query);
 
     res.json({
+      success: true,
       notes,
       pagination: {
         page,
@@ -162,6 +163,18 @@ router.put('/:id', [
     note.lastEditedBy = req.user._id;
     note.lastSynced = new Date();
     await note.save();
+    
+    // Broadcast note update to all connected users
+    if (req.app.get('io')) {
+      req.app.get('io').emit('note-changed', {
+        noteId: req.params.id,
+        changes: { title, content, tags, isFavorite, isArchived },
+        version: 1, // Simple versioning
+        userId: req.user._id.toString(),
+        userName: req.user.name || req.user.email,
+        timestamp: new Date().toISOString()
+      });
+    }
     
     res.json({
       success: true,

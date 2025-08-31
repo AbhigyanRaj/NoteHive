@@ -16,7 +16,9 @@ export interface Note {
   createdAt: Date;
   updatedAt: Date;
   lastSynced?: Date;
-  userId: string;
+  userId?: string;
+  createdBy?: string;
+  lastEditedBy?: string;
   localId?: string; // For offline notes
   needsSync?: boolean; // Flag for offline changes
 }

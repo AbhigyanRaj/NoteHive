@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSettings } from '../context/SettingsContext';
 import { useAuth } from '../context/AuthContext';
@@ -9,6 +9,12 @@ const Settings: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('profile');
+  const [isEditing, setIsEditing] = useState({ username: false, email: false });
+  const [formData, setFormData] = useState({ username: user?.name || '', email: user?.email || '' });
+  const [notesCount, setNotesCount] = useState(0);
+  const [storageUsed, setStorageUsed] = useState('0');
+  const [offlineMode, setOfflineMode] = useState(true);
+  const [autoBackup, setAutoBackup] = useState(true);
 
   const handleThemeChange = (newTheme: 'light' | 'dark') => {
     updateSettings({ theme: newTheme });
@@ -22,6 +28,58 @@ const Settings: React.FC = () => {
     updateSettings({ windowMode: newMode });
   };
 
+  const handleClearCache = () => {
+    try {
+      localStorage.removeItem('notehive_notes_cache');
+      localStorage.removeItem('notehive_offline_data');
+      setStorageUsed('0');
+      alert('Cache cleared successfully!');
+    } catch (error) {
+      alert('Failed to clear cache');
+    }
+  };
+
+  const handleEditToggle = (field: 'username' | 'email') => {
+    setIsEditing(prev => ({ ...prev, [field]: !prev[field] }));
+  };
+
+  const handleSaveProfile = () => {
+    // Here you would typically make an API call to update user profile
+    console.log('Saving profile:', formData);
+    setIsEditing({ username: false, email: false });
+    alert('Profile updated successfully!');
+  };
+
+  useEffect(() => {
+    // Calculate storage usage
+    const calculateStorage = () => {
+      let totalSize = 0;
+      for (let key in localStorage) {
+        if (localStorage.hasOwnProperty(key)) {
+          totalSize += localStorage[key].length;
+        }
+      }
+      setStorageUsed((totalSize / 1024).toFixed(1));
+    };
+
+    // Get notes count (mock data for now)
+    const getNotesCount = () => {
+      try {
+        const notes = JSON.parse(localStorage.getItem('notehive_notes') || '[]');
+        setNotesCount(notes.length);
+      } catch {
+        setNotesCount(0);
+      }
+    };
+
+    calculateStorage();
+    getNotesCount();
+  }, []);
+
+  useEffect(() => {
+    setFormData({ username: user?.name || '', email: user?.email || '' });
+  }, [user]);
+
   const settingsSections = [
     { id: 'profile', name: 'Profile', icon: 'user' },
     { id: 'appearance', name: 'Appearance', icon: 'palette' },
@@ -34,8 +92,8 @@ const Settings: React.FC = () => {
       <Navbar />
 
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-8 py-6">
-        <div className="flex items-center space-x-4">
+      <div className="bg-white border-b border-gray-200 px-4 sm:px-8 py-4 sm:py-6">
+        <div className="flex items-center space-x-3 sm:space-x-4">
           <button
             onClick={() => navigate('/dashboard')}
             className="flex items-center justify-center w-8 h-8 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors duration-200"
@@ -44,16 +102,16 @@ const Settings: React.FC = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-          <h1 className="text-2xl font-semibold text-gray-900">Settings Menu</h1>
+          <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">Settings Menu</h1>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-6 py-10">
-        <div className="flex gap-10">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-10">
           {/* Sidebar Navigation */}
-          <div className="w-72 flex-shrink-0">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sticky top-28">
+          <div className="w-full lg:w-72 lg:flex-shrink-0">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 lg:sticky lg:top-28">
               <nav className="space-y-1">
                 {settingsSections.map((section) => (
                   <button
@@ -97,25 +155,25 @@ const Settings: React.FC = () => {
           </div>
 
           {/* Content Area */}
-          <div className="flex-1">
+          <div className="flex-1 w-full lg:w-auto">
             {activeSection === 'profile' && (
-              <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-gray-200/50 p-10 transition-all duration-500">
-                <div className="flex items-center space-x-6 mb-10">
-                  <div className="relative">
-                    <div className="w-20 h-20 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 rounded-3xl flex items-center justify-center shadow-lg">
-                      <span className="text-2xl font-bold text-white">
+              <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-gray-200/50 p-6 sm:p-10 transition-all duration-500">
+                <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-6 mb-8 sm:mb-10">
+                  <div className="relative mx-auto sm:mx-0">
+                    <div className="w-16 sm:w-20 h-16 sm:h-20 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 rounded-3xl flex items-center justify-center shadow-lg">
+                      <span className="text-xl sm:text-2xl font-bold text-white">
                         {user?.username?.charAt(0)?.toUpperCase() || 'U'}
                       </span>
                     </div>
-                    <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-green-500 rounded-full border-3 border-white flex items-center justify-center">
-                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <div className="absolute -bottom-2 -right-2 w-5 sm:w-6 h-5 sm:h-6 bg-green-500 rounded-full border-3 border-white flex items-center justify-center">
+                      <svg className="w-2.5 sm:w-3 h-2.5 sm:h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                     </div>
                   </div>
-                  <div>
-                    <h2 className="text-3xl font-bold text-gray-900 mb-2">Profile Settings</h2>
-                    <p className="text-gray-600 text-lg">Manage your account information and preferences</p>
+                  <div className="text-center sm:text-left">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Profile Settings</h2>
+                    <p className="text-gray-600 text-base sm:text-lg">Manage your account information and preferences</p>
                   </div>
                 </div>
                 
@@ -126,14 +184,26 @@ const Settings: React.FC = () => {
                       <div className="relative group">
                         <input
                           type="text"
-                          value={user?.username || ''}
-                          className="w-full px-5 py-4 bg-gray-50/80 border-2 border-gray-200 rounded-2xl text-gray-900 font-medium focus:outline-none focus:ring-4 focus:ring-gray-900/10 focus:border-gray-900 transition-all duration-300 group-hover:border-gray-300"
-                          readOnly
+                          value={formData.username}
+                          onChange={(e) => setFormData(prev => ({ ...prev, username: e.target.value }))}
+                          className={`w-full px-5 py-4 bg-gray-50/80 border-2 border-gray-200 rounded-2xl text-gray-900 font-medium focus:outline-none focus:ring-4 focus:ring-gray-900/10 focus:border-gray-900 transition-all duration-300 group-hover:border-gray-300 ${
+                            isEditing.username ? 'bg-white border-blue-300' : 'bg-gray-50/80'
+                          }`}
+                          readOnly={!isEditing.username}
                         />
-                        <button className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition-colors duration-200 p-1 rounded-lg hover:bg-gray-100">
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
+                        <button 
+                          onClick={() => handleEditToggle('username')}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition-colors duration-200 p-1 rounded-lg hover:bg-gray-100"
+                        >
+                          {isEditing.username ? (
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          ) : (
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                          )}
                         </button>
                       </div>
                     </div>
@@ -143,14 +213,26 @@ const Settings: React.FC = () => {
                       <div className="relative group">
                         <input
                           type="email"
-                          value={user?.email || ''}
-                          className="w-full px-5 py-4 bg-gray-50/80 border-2 border-gray-200 rounded-2xl text-gray-900 font-medium focus:outline-none focus:ring-4 focus:ring-gray-900/10 focus:border-gray-900 transition-all duration-300 group-hover:border-gray-300"
-                          readOnly
+                          value={formData.email}
+                          onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                          className={`w-full px-5 py-4 bg-gray-50/80 border-2 border-gray-200 rounded-2xl text-gray-900 font-medium focus:outline-none focus:ring-4 focus:ring-gray-900/10 focus:border-gray-900 transition-all duration-300 group-hover:border-gray-300 ${
+                            isEditing.email ? 'bg-white border-blue-300' : 'bg-gray-50/80'
+                          }`}
+                          readOnly={!isEditing.email}
                         />
-                        <button className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition-colors duration-200 p-1 rounded-lg hover:bg-gray-100">
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
+                        <button 
+                          onClick={() => handleEditToggle('email')}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition-colors duration-200 p-1 rounded-lg hover:bg-gray-100"
+                        >
+                          {isEditing.email ? (
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          ) : (
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                          )}
                         </button>
                       </div>
                     </div>
@@ -184,7 +266,7 @@ const Settings: React.FC = () => {
                         </svg>
                       </div>
                       <h4 className="font-bold text-gray-900 mb-2">Notes Created</h4>
-                      <p className="text-2xl font-bold text-blue-600">24</p>
+                      <p className="text-2xl font-bold text-blue-600">{notesCount}</p>
                     </div>
                     
                     <div className="bg-gray-50/80 rounded-2xl p-6 text-center border border-gray-200/50 hover:shadow-lg transition-all duration-300">
@@ -194,7 +276,7 @@ const Settings: React.FC = () => {
                         </svg>
                       </div>
                       <h4 className="font-bold text-gray-900 mb-2">Storage Used</h4>
-                      <p className="text-2xl font-bold text-purple-600">2.4 MB</p>
+                      <p className="text-2xl font-bold text-purple-600">{storageUsed} KB</p>
                     </div>
                     
                     <div className="bg-gray-50/80 rounded-2xl p-6 text-center border border-gray-200/50 hover:shadow-lg transition-all duration-300">
@@ -207,6 +289,23 @@ const Settings: React.FC = () => {
                       <p className="text-2xl font-bold text-orange-600">Now</p>
                     </div>
                   </div>
+                  
+                  {(isEditing.username || isEditing.email) && (
+                    <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+                      <button
+                        onClick={() => setIsEditing({ username: false, email: false })}
+                        className="px-6 py-3 text-gray-600 bg-gray-100 rounded-xl font-medium hover:bg-gray-200 transition-colors duration-200"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleSaveProfile}
+                        className="px-6 py-3 bg-gray-900 text-white rounded-xl font-medium hover:bg-gray-800 transition-colors duration-200"
+                      >
+                        Save Changes
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -346,7 +445,10 @@ const Settings: React.FC = () => {
                         <div className="text-xs text-gray-600">Cached notes and preferences • 2.4 MB used</div>
                       </div>
                     </div>
-                    <button className="bg-white text-gray-700 px-4 py-2 rounded-lg text-sm font-medium border border-gray-200 hover:bg-gray-50 transition-all duration-200">
+                    <button 
+                      onClick={handleClearCache}
+                      className="bg-white text-gray-700 px-4 py-2 rounded-lg text-sm font-medium border border-gray-200 hover:bg-gray-50 transition-all duration-200"
+                    >
                       Clear Cache
                     </button>
                   </div>
@@ -363,10 +465,18 @@ const Settings: React.FC = () => {
                         <div className="text-xs text-gray-600">Access notes without internet connection</div>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span className="text-sm font-medium text-green-600">Enabled</span>
-                    </div>
+                    <button
+                      onClick={() => setOfflineMode(!offlineMode)}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 ${
+                        offlineMode ? 'bg-green-500' : 'bg-gray-300'
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          offlineMode ? 'translate-x-6' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
                   </div>
 
                   <div className="flex justify-between items-center p-6 bg-gray-50 rounded-xl">
@@ -381,10 +491,18 @@ const Settings: React.FC = () => {
                         <div className="text-xs text-gray-600">Automatic backup every 30 minutes</div>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span className="text-sm font-medium text-green-600">Active</span>
-                    </div>
+                    <button
+                      onClick={() => setAutoBackup(!autoBackup)}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 ${
+                        autoBackup ? 'bg-green-500' : 'bg-gray-300'
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          autoBackup ? 'translate-x-6' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
                   </div>
                 </div>
               </div>

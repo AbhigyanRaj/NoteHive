@@ -229,19 +229,21 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ note, onSave, onClose }) => {
       className={`fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200 ${isFullscreen ? 'p-0' : ''}`}
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className={`bg-white rounded-3xl w-full flex flex-col shadow-2xl border border-gray-100 animate-in slide-in-from-bottom-4 duration-300 ${
-        isFullscreen ? 'max-w-none max-h-none h-full rounded-none' : 'max-w-4xl max-h-[90vh]'
+      <div className={`bg-white w-full flex flex-col shadow-2xl border border-gray-100 animate-in slide-in-from-bottom-4 duration-300 ${
+        isFullscreen 
+          ? 'max-w-none max-h-none h-full rounded-none' 
+          : 'max-w-4xl max-h-[90vh] rounded-3xl sm:rounded-3xl rounded-t-3xl'
       }`}>
         {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b border-gray-100 shrink-0">
+        <div className="flex justify-between items-center p-4 sm:p-6 border-b border-gray-100 shrink-0">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-gray-900 to-gray-700 rounded-xl flex items-center justify-center">
-              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-8 sm:w-10 h-8 sm:h-10 bg-gradient-to-br from-gray-900 to-gray-700 rounded-xl flex items-center justify-center">
+              <svg className="w-4 sm:w-5 h-4 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
             </div>
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900">
+            <div className="hidden sm:block">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
                 {note ? 'Edit Note' : 'Create New Note'}
               </h2>
               <p className="text-sm text-gray-500">
@@ -250,8 +252,8 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ note, onSave, onClose }) => {
             </div>
           </div>
           
-          <div className="flex items-center space-x-2">
-            <div className="hidden sm:flex items-center space-x-2 mr-2">
+          <div className="flex items-center space-x-1 sm:space-x-2">
+            <div className="hidden lg:flex items-center space-x-2 mr-2">
               <div className="flex items-center space-x-2 text-xs text-gray-500 bg-gray-50 px-3 py-1.5 rounded-lg">
                 <kbd className="px-2 py-1 bg-white border border-gray-200 rounded text-xs font-mono">⌘</kbd>
                 <kbd className="px-2 py-1 bg-white border border-gray-200 rounded text-xs font-mono">S</kbd>
@@ -261,7 +263,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ note, onSave, onClose }) => {
             
             <button
               onClick={() => setIsFullscreen(!isFullscreen)}
-              className="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+              className="hidden sm:flex p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
               title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
             >
               {isFullscreen ? (
@@ -277,7 +279,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ note, onSave, onClose }) => {
             
             <button
               onClick={handleSave}
-              className="inline-flex items-center space-x-2 bg-gray-900 text-white px-5 py-2.5 rounded-xl text-sm hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 font-medium shadow-sm hover:shadow-md"
+              className="inline-flex items-center space-x-2 bg-gray-900 text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-sm hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 font-medium shadow-sm hover:shadow-md"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -286,7 +288,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ note, onSave, onClose }) => {
             </button>
             <button
               onClick={onClose}
-              className="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+              className="p-2 sm:p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -296,14 +298,14 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ note, onSave, onClose }) => {
         </div>
         
         {/* Content Area */}
-        <div className="flex-1 p-6 overflow-hidden min-h-0">
+        <div className="flex-1 p-4 sm:p-6 overflow-hidden min-h-0">
             <input
               ref={titleRef}
               type="text"
               placeholder="Give your note a title..."
               value={title}
               onChange={handleTitleChange}
-              className="w-full text-3xl font-bold mb-6 p-0 border-none outline-none bg-transparent text-gray-900 placeholder-gray-400 focus:placeholder-gray-300 transition-colors duration-200"
+              className="w-full text-xl sm:text-3xl font-bold mb-4 sm:mb-6 p-0 border-none outline-none bg-transparent text-gray-900 placeholder-gray-400 focus:placeholder-gray-300 transition-colors duration-200"
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && contentRef.current) {
                   e.preventDefault();
@@ -314,10 +316,10 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ note, onSave, onClose }) => {
           <div className="relative h-full">
             <textarea
               ref={contentRef}
-              placeholder="Start writing your note here... You can write anything - ideas, thoughts, reminders, or detailed notes."
+              placeholder="Start writing your note..."
               value={content}
               onChange={handleContentChange}
-              className="w-full h-full resize-none border-none outline-none bg-transparent text-base leading-relaxed text-gray-700 placeholder-gray-400 focus:placeholder-gray-300 transition-colors duration-200"
+              className="w-full h-full resize-none border-none outline-none bg-transparent text-sm sm:text-base leading-relaxed text-gray-700 placeholder-gray-400 focus:placeholder-gray-300 transition-colors duration-200"
             />
             
             {/* Floating word count for long content */}
@@ -338,7 +340,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ note, onSave, onClose }) => {
         </div>
         
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-100 bg-gradient-to-r from-gray-50 to-white shrink-0">
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 bg-gradient-to-r from-gray-50 to-white shrink-0">
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center space-x-4">
               {/* Collaboration Status */}

@@ -153,13 +153,21 @@ class NotesService {
 
       const data = await response.json();
       
-      if (data.success) {
-        // Update local storage with server data
-        this.saveLocalNotes(data.notes);
-        localStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
-        return { notes: data.notes, pagination: data.pagination };
+      // Handle both old format (direct notes array) and new format (with success field)
+      if (data.success !== undefined) {
+        if (data.success) {
+          // Update local storage with server data
+          this.saveLocalNotes(data.notes);
+          localStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
+          return { notes: data.notes, pagination: data.pagination };
+        } else {
+          throw new Error(data.message || 'Failed to fetch notes');
+        }
       } else {
-        throw new Error(data.message || 'Failed to fetch notes');
+        // Legacy format - direct notes array
+        this.saveLocalNotes(data.notes || data);
+        localStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
+        return { notes: data.notes || data, pagination: data.pagination };
       }
     } catch (error) {
       console.error('Error fetching notes from server:', error);
@@ -242,13 +250,22 @@ class NotesService {
   }
 
   async updateNote(noteId: string, updates: Partial<Note>): Promise<Note> {
+    if (!noteId) {
+      console.error('❌ updateNote called with undefined/null noteId:', noteId);
+      throw new Error('Note ID is required for update');
+    }
+    
+    console.log('🔍 Looking for note with ID:', noteId);
     const localNotes = this.getLocalNotes();
+    console.log('📋 Available notes:', localNotes.map(n => ({ _id: n._id, localId: n.localId, id: n.id, title: n.title })));
+    
     const noteIndex = localNotes.findIndex(note => 
-      note._id === noteId || note.localId === noteId
+      note._id === noteId || note.localId === noteId || note.id === noteId
     );
     
     if (noteIndex === -1) {
-      throw new Error('Note not found');
+      console.error('❌ Note not found in local storage with ID:', noteId);
+      throw new Error(`Note not found with ID: ${noteId}`);
     }
 
     const updatedNote = {
