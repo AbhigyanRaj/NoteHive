@@ -281,10 +281,10 @@ const Dashboard: React.FC = () => {
             </div>
             <input
               type="text"
-              placeholder="Search notes..."
+              placeholder="Search notes by title, content, or tags..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-gray-500 focus:border-transparent text-sm transition-all duration-200"
+              className="block w-full pl-10 pr-12 py-3 border border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-gray-900 focus:border-transparent text-sm transition-all duration-200 shadow-sm hover:shadow-md"
             />
             {searchQuery && (
               <button
@@ -309,16 +309,6 @@ const Dashboard: React.FC = () => {
                 }`}
               >
                 All Notes
-              </button>
-              <button
-                onClick={() => setActiveFilter('recent')}
-                className={`px-3 sm:px-4 py-2 rounded-xl text-sm font-medium shadow-sm transition-all duration-200 ${
-                  activeFilter === 'recent' 
-                    ? 'bg-gray-900 text-white' 
-                    : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
-                }`}
-              >
-                Recent
               </button>
               <button
                 onClick={() => setActiveFilter('favorites')}

@@ -17,6 +17,11 @@ router.get('/', auth, async (req, res) => {
 
         let query = { createdBy: req.user._id };
     
+    // Handle favorite filter
+    if (req.query.favorite === 'true') {
+      query.isFavorite = true;
+    }
+    
     if (search) {
       query.$text = { $search: search };
     }

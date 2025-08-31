@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
 
@@ -10,6 +11,7 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({ onAddNote, onToggleMode }) => {
   const { logout, user } = useAuth();
   const { windowMode } = useSettings();
+  const navigate = useNavigate();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
@@ -120,7 +122,7 @@ const Navbar: React.FC<NavbarProps> = ({ onAddNote, onToggleMode }) => {
                       <button 
                         onClick={() => {
                           setIsProfileOpen(false);
-                          window.location.href = '/settings';
+                          navigate('/settings');
                         }}
                         className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center space-x-3"
                       >
@@ -232,7 +234,7 @@ const Navbar: React.FC<NavbarProps> = ({ onAddNote, onToggleMode }) => {
 
               <button
                 onClick={() => {
-                  window.location.href = '/settings';
+                  navigate('/settings');
                   setIsMobileMenuOpen(false);
                 }}
                 className="w-full flex items-center space-x-3 px-3 py-2 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200"

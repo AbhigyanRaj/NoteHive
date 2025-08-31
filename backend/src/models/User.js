@@ -28,6 +28,13 @@ const userSchema = new mongoose.Schema({
   },
   avatar: {
     type: String // URL to profile picture
+  },
+  profilePicture: {
+    type: String // URL to Google profile picture
+  },
+  isEmailVerified: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true
